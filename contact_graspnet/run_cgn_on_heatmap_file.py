@@ -30,7 +30,6 @@ def main(args):
         args.heatmap_file,
         prop_save_dir = prop_save_dir,
         img_save_dir = img_save_dir,
-        heatmap_source = args.heatmap_source,
         viz_o3d = args.viz_o3d,
         viz_save_as_mp4=args.viz_save_as_mp4,
         viz_all_grasps=args.viz_all_grasps,
@@ -43,7 +42,6 @@ def main(args):
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("heatmap_file", type=str, help="Path to heatmap .npz file")
-    parser.add_argument("--heatmap_source", default="ours", choices=["ours", "gt", "cgn"], help="What point scores to use")
     parser.add_argument(
         "--display",
         type=str,

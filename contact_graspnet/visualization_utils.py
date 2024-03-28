@@ -132,9 +132,10 @@ def viz_proposals_mlab(
             for e_angle in np.arange(180-degree_delta, start_ang-degree_delta, -degree_delta):
                 angle_list.append([360, e_angle, 180])
 
-            # Overwrite tmp directory to store frames
+            # Overwrite tmp directory to store frames for gif
             frames_dir = 'point_cloud_frames'
-            shutil.rmtree(frames_dir)
+            if os.path.exists(frames_dir):
+                shutil.rmtree(frames_dir)
             os.makedirs(frames_dir, exist_ok=True)
 
             # Rotate the camera around the point cloud and save each frame

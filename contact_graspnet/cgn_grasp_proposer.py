@@ -23,7 +23,7 @@ class CGN_Grasp_Proposer:
     def __init__(self):
 
         # Load CGN network
-        ckpt_dir = 'checkpoints/scene_test_2048_bs3_hor_sigma_001'
+        ckpt_dir = 'contact_graspnet/checkpoints/scene_test_2048_bs3_hor_sigma_001'
         global_config = config_utils.load_config(ckpt_dir, batch_size=1)
 
         global_config['TEST']['second_thres'] = 0.10
@@ -54,7 +54,6 @@ class CGN_Grasp_Proposer:
         viz_top_k=None,
         viz_save_as_mp4=False,
         viz_all_grasps=True,
-        viz_heatmap=False,
     ):
         """
         Get list of grasp proposals from a path to a heatmap file.
@@ -108,7 +107,7 @@ class CGN_Grasp_Proposer:
         heatmap_closest = heatmap[top_k]
         pts_closest = pts[top_k]
 
-        # Get proposal tuples (grasp_pos, grasp_6d_ori, heatmap_score)
+        # Get proposal tuples (grasp_pos, grasp_quaternion, heatmap_score)
         k_target_posses = target_pos_arr[closest]
         proposals = []
         closest_ind_already_saved = []
@@ -118,8 +117,8 @@ class CGN_Grasp_Proposer:
             # Don't save multiple proposals with same target_pos
             if closest[i] not in closest_ind_already_saved:
                 closest_ind_already_saved.append(closest[i])
-                ori_6d = self.get_gripper_ori_from_cgn_grasp(cgn_grasp)
-                cand = (k_target_posses[i], ori_6d, heatmap_closest[i])
+                ori_quat = self.get_gripper_ori_from_cgn_grasp(cgn_grasp)
+                cand = (k_target_posses[i], ori_quat, heatmap_closest[i])
 
                 proposals.append(cand)
 
@@ -196,26 +195,7 @@ class CGN_Grasp_Proposer:
         """
 
         target_pos_list = [prop[0] for prop in proposals]
-
-        def get_ori_from_6d(r6d):
-            def normalize(x):
-                length = max(np.linalg.norm(x), 1e-8)
-                return x / length
-
-            r6d = r6d.reshape(2, 3)
-            x, y = r6d
-            x = normalize(x)
-            y -= np.dot(x, y) * x
-            y = normalize(y)
-            z = np.cross(x, y, axis=-1)
-            R = Rotation.from_matrix(np.stack([x, y, z], axis=-1))
-            ori = R.as_euler("xyz")
-            return ori
-
-        target_ori_list = [
-            get_ori_from_6d(prop[1])
-            for prop in proposals
-        ]
+        target_ori_list = [prop[1] for prop in proposals]
 
         if highlight_top_k is not None and not draw_all_grasps:
             target_ori_list = target_ori_list[:highlight_top_k]
@@ -244,12 +224,9 @@ class CGN_Grasp_Proposer:
 
     def get_gripper_ori_from_cgn_grasp(self, cgn_grasp):
         """
-        From CGN grasp representation, get 6d representation of orientation
+        From CGN grasp representation, get grasp orientation as a quaternion (xyzw) 
         """
         R = Rotation.from_matrix(cgn_grasp[:3,:3]).as_euler("zxy", degrees=False)
         R[0] += np.pi/2
         R = Rotation.from_euler("zxy", R)
-        R = R.as_matrix()
-        ori_6d = np.concatenate([R[:,0], R[:,1]], axis=0)
-        return ori_6d
-
+        return R.as_quat()

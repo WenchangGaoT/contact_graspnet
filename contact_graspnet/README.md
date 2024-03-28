@@ -39,7 +39,6 @@ python contact_graspnet/run_cgn_on_heatmap_file.py <path/to/heatmap.npz> <--VISU
 #### Visualization options
 
 - `--viz_o3d` (store_true): If this flag is used, grasp proposals will be visualized in an open3d visualizer window.
-- `--viz_heatmap` (store_true): If this flag is used, point cloud will be colored with heatmap labels. If flag is not used, point clouds will be colored with rgb values, if they exist (only real data will have rgb pointclouds)
 - `--viz_all_grasps` (store_true): If this flag is used, all top 200 grasps (minus duplicates) will be visualized with a thin black line.
 - `--viz_save_as_mp4`(store_true): If this flag is used, grasp proposal visualization will be saved as a gif. If flag is not used, a `.png` image will be saved.
 - `--viz_id` (int): If specified, highlight grasp with id `viz_id` with thick green line.

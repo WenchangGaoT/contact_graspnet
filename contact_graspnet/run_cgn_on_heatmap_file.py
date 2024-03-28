@@ -35,7 +35,6 @@ def main(args):
         viz_all_grasps=args.viz_all_grasps,
         viz_id=args.viz_id,
         viz_top_k=args.viz_top_k,
-        viz_heatmap=args.viz_heatmap,
     )
 
 
@@ -49,7 +48,6 @@ def parse_args():
         help="Display number",
     )
     parser.add_argument("--viz_o3d", action="store_true", help="Visualize proposals in o3d visualizer")
-    parser.add_argument("--viz_heatmap", action="store_true", help="Visualize point colors as heatmap")
     parser.add_argument("--viz_all_grasps", action="store_true", help="Visualize all grasps w/ thin black line")
     parser.add_argument("--viz_save_as_mp4", action="store_true", help="Save proposals gif")
     parser.add_argument("--viz_id", type=int, help="Grasp ID to highlight w/ green line")

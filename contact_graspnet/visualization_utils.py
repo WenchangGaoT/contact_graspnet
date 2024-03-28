@@ -34,6 +34,9 @@ def viz_proposals_mlab(
     fig = mlab.figure('Pred Grasps', size=(1024, 1024), bgcolor=bgcolor)
     mlab.view(azimuth=180, elevation=180, distance=2, roll=0) # rotated data
 
+    # Scale heatmap for visualization
+    heatmap = scale_to_0_1(heatmap)
+
     if pcd_rgb is not None:
         draw_pc_with_colors(
             pts,
@@ -470,7 +473,7 @@ def get_o3d_pts(pts, normals=None):
     return pcd
 
 
-def get_eef_line_set_for_o3d_viz(eef_pos_list, eef_ori_xyz_list, highlight_top_k=None):
+def get_eef_line_set_for_o3d_viz(eef_pos_list, eef_quat_list, highlight_top_k=None):
     # Get base gripper points
     g_opening = 0.07
     gripper = mesh_utils.create_gripper("panda")
@@ -496,16 +499,15 @@ def get_eef_line_set_for_o3d_viz(eef_pos_list, eef_ori_xyz_list, highlight_top_k
     r = Rotation.from_euler("z", 90, degrees=True)
     gripper_control_points_base = r.apply(gripper_control_points_base)
 
-    # Compute gripper viz pts based on eef_pos and eef_ori_xyz
+    # Compute gripper viz pts based on eef_pos and eef_quat
     line_set_list = []
     for i in range(len(eef_pos_list)):
         eef_pos = eef_pos_list[i]
-        eef_ori_xyz = eef_ori_xyz_list[i]
+        eef_quat = eef_quat_list[i]
 
         gripper_control_points = gripper_control_points_base.copy()
         g = np.zeros((4, 4))
-        rot = Rotation.from_euler("xyz", eef_ori_xyz).as_matrix()
-        #rot = r_utils.get_matrix_from_ori(eef_ori_xyz)
+        rot = Rotation.from_quat(eef_quat).as_matrix()
         g[:3, :3] = rot
         g[:3, 3] = eef_pos.T
         g[3, 3] = 1
@@ -538,7 +540,7 @@ def get_eef_line_set_for_o3d_viz(eef_pos_list, eef_ori_xyz_list, highlight_top_k
 def viz_pts_and_eef_o3d(
     pts_pcd,
     eef_pos_list,
-    eef_ori_xyz_list,
+    eef_quat_list,
     heatmap_labels=None,
     save_path=None,
     frame="world",
@@ -549,8 +551,8 @@ def viz_pts_and_eef_o3d(
 ):
     """
     Plot eef in o3d visualization, with point cloud, at positions and
-    orientations specified in eef_pos_list and eef_ori_xyz_list
-    pts_pcd, eef_pos, and eef_ori_xyz need to be in same frame
+    orientations specified in eef_pos_list and eef_quat_list
+    pts_pcd, eef_pos_list, and eef_quat_list need to be in same frame
     """
 
     pcd = get_o3d_pts(pts_pcd)
@@ -558,13 +560,16 @@ def viz_pts_and_eef_o3d(
         pcd.colors = o3d.utility.Vector3dVector(pcd_rgb)
     else:
         if heatmap_labels is not None:
+            # Scale heatmap for visualization
+            heatmap_labels = scale_to_0_1(heatmap_labels)
+
             cmap = matplotlib.cm.get_cmap("RdYlGn")
             colors = cmap(np.squeeze(heatmap_labels))[:, :3]
             pcd.colors = o3d.utility.Vector3dVector(colors)
 
     # Get line_set for drawing eef in o3d
     line_set_list = get_eef_line_set_for_o3d_viz(
-        eef_pos_list, eef_ori_xyz_list, highlight_top_k=highlight_top_k,
+        eef_pos_list, eef_quat_list, highlight_top_k=highlight_top_k,
     )
 
     vis = o3d.visualization.Visualizer()
@@ -618,3 +623,5 @@ def viz_pts_and_eef_o3d(
         )
     vis.destroy_window()
 
+def scale_to_0_1(data):
+    return (data - np.min(data)) / (np.max(data) - np.min(data))

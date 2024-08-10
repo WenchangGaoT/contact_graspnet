@@ -13,8 +13,8 @@ sys.path.append(os.path.join(BASE_DIR))
 sys.path.append(os.path.join(BASE_DIR, 'pointnet2',  'utils'))
 sys.path.append(os.path.abspath(__file__))
 
-from tf_train_ops import get_bn_decay
-import config_utils
+from grasps.aograsp.contact_graspnet.contact_graspnet.tf_train_ops import get_bn_decay
+import utils.aograsp_utils.cgn_config_utils as config_utils
 from data import farthest_points, distance_by_translation_point, preprocess_pc_for_inference, regularize_pc_point_count, depth2pc, reject_median_outliers
 
 class GraspEstimator:
@@ -32,7 +32,7 @@ class GraspEstimator:
             self._num_samples = self._cfg.num_samples
         else:
             self._contact_grasp_cfg = cfg
-
+        # print(self._contact_grasp_cfg['MODEL']['model'])
         self._model_func = importlib.import_module(self._contact_grasp_cfg['MODEL']['model'])
         self._num_input_points = self._contact_grasp_cfg['DATA']['raw_num_points'] if 'raw_num_points' in self._contact_grasp_cfg['DATA'] else self._contact_grasp_cfg['DATA']['num_point']
         

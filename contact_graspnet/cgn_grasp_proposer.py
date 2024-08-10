@@ -1,6 +1,6 @@
-from visualization_utils import visualize_grasps, viz_proposals_mlab, viz_pts_and_eef_o3d
-from contact_grasp_estimator import GraspEstimator
-import config_utils
+from grasps.aograsp.contact_graspnet.contact_graspnet.visualization_utils import visualize_grasps, viz_proposals_mlab, viz_pts_and_eef_o3d
+from grasps.aograsp.contact_graspnet.contact_graspnet.contact_grasp_estimator import GraspEstimator
+import utils.aograsp_utils.cgn_config_utils as config_utils
 import os
 import sys
 import argparse
@@ -23,7 +23,7 @@ class CGN_Grasp_Proposer:
     def __init__(self):
 
         # Load CGN network
-        ckpt_dir = 'contact_graspnet/checkpoints/scene_test_2048_bs3_hor_sigma_001'
+        ckpt_dir = '/home/wgao22/projects/ForceRL/checkpoints/grasp_models/cgn_models/scene_test_2048_bs3_hor_sigma_001'
         global_config = config_utils.load_config(ckpt_dir, batch_size=1)
 
         global_config['TEST']['second_thres'] = 0.10

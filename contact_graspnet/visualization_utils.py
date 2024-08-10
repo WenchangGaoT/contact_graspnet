@@ -8,7 +8,7 @@ import shutil
 import open3d as o3d
 from scipy.spatial.transform import Rotation
 
-import mesh_utils
+import grasps.aograsp.contact_graspnet.contact_graspnet.mesh_utils as mesh_utils
 mlab.options.offscreen = True
 # mlab.options.backend = 'envisage'
 
@@ -554,7 +554,7 @@ def viz_pts_and_eef_o3d(
     orientations specified in eef_pos_list and eef_quat_list
     pts_pcd, eef_pos_list, and eef_quat_list need to be in same frame
     """
-
+    print('o3ding...')
     pcd = get_o3d_pts(pts_pcd)
     if pcd_rgb is not None:
         pcd.colors = o3d.utility.Vector3dVector(pcd_rgb)

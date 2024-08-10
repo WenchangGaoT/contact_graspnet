@@ -13,6 +13,7 @@ Script to read from a heatmap file run CGN it
 """
 
 def main(args):
+    print("in main")
     if args.display is not None:
         # Set env variable DIPSLAY to user-specified value
         os.environ["DISPLAY"] = args.display
@@ -21,14 +22,17 @@ def main(args):
 
     # Make save directories
     data_dir = os.path.dirname(os.path.dirname(args.heatmap_file))
-    prop_save_dir = os.path.join(data_dir, "grasp_proposals")
-    img_save_dir = os.path.join(data_dir, "grasp_proposals_img")
+    # prop_save_dir = os.path.join(data_dir, "grasp_proposals")
+    # img_save_dir = os.path.join(data_dir, "grasp_proposals_img")
+
+    prop_save_dir = args.prop_save_dir
+    img_save_dir = os.path.join(os.path.dirname(prop_save_dir), "grasp_proposals_img")
     if not os.path.exists(prop_save_dir): os.makedirs(prop_save_dir)
     if not os.path.exists(img_save_dir): os.makedirs(img_save_dir)
-
+    print("proposing..")
     cgn.propose_grasp_from_heatmap_file(
         args.heatmap_file,
-        prop_save_dir = prop_save_dir,
+        prop_save_dir = args.prop_save_dir,
         img_save_dir = img_save_dir,
         viz_o3d = args.viz_o3d,
         viz_save_as_mp4=args.viz_save_as_mp4,
@@ -40,7 +44,8 @@ def main(args):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("heatmap_file", type=str, help="Path to heatmap .npz file")
+    parser.add_argument("--heatmap_file", type=str, help="Path to heatmap .npz file")
+    parser.add_argument("--prop_save_dir", type=str, help="Path to save grasp proposals")
     parser.add_argument(
         "--display",
         type=str,
@@ -51,7 +56,7 @@ def parse_args():
     parser.add_argument("--viz_all_grasps", action="store_true", help="Visualize all grasps w/ thin black line")
     parser.add_argument("--viz_save_as_mp4", action="store_true", help="Save proposals gif")
     parser.add_argument("--viz_id", type=int, help="Grasp ID to highlight w/ green line")
-    parser.add_argument("--viz_top_k", type=int, help="Top-k grasps to highlight w/ green line")
+    parser.add_argument("--viz_top_k", type=int, help="Top-k grasps to highlight w/ green line", default=5)
     return parser.parse_args()
 
 if __name__ == "__main__":

@@ -23,7 +23,13 @@ class CGN_Grasp_Proposer:
     def __init__(self):
 
         # Load CGN network
-        ckpt_dir = '/home/wgao22/projects/ForceRL/checkpoints/grasp_models/cgn_models/scene_test_2048_bs3_hor_sigma_001'
+        project_dir = os.path.dirname(
+            os.path.dirname(
+                os.path.dirname(
+                    os.path.dirname(
+                        os.path.dirname(
+                            os.path.abspath(__file__))))))
+        ckpt_dir = os.path.join(project_dir, "checkpoints/grasp_models/cgn_models/scene_test_2048_bs3_hor_sigma_001")
         global_config = config_utils.load_config(ckpt_dir, batch_size=1)
 
         global_config['TEST']['second_thres'] = 0.10
